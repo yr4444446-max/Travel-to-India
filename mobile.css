@@ -1,0 +1,1457 @@
+/* ============================================================
+   PLAN YOUR TRIP INDIA — COMPLETE MOBILE FIX CSS
+   Works on: iOS Safari, Chrome/Android, Samsung Browser,
+             Firefox Mobile, PWA mode, notch/Dynamic Island
+   ============================================================ */
+
+/* ── 1. ROOT OVERRIDES — iOS/Android safe areas ─────────────
+   Force env() to always resolve even on Android where it
+   returns 0 — prevents any layout gaps.                       */
+:root {
+  --safe-top:    env(safe-area-inset-top,    0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left,   0px);
+  --safe-right:  env(safe-area-inset-right,  0px);
+}
+
+/* ── 2. HTML / BODY BASE ─────────────────────────────────────
+   Prevent iOS rubber-band overscroll from breaking layout.
+   -webkit-overflow-scrolling: touch for momentum scrolling.   */
+html {
+  /* Prevent font-size boost on landscape rotate (iOS/Android) */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust:    100%;
+       text-size-adjust:    100%;
+  /* Consistent scroll behaviour cross-browser */
+  scroll-behavior: smooth;
+  /* Prevent overscroll glow on Chrome Android */
+  overscroll-behavior: none;
+}
+
+body {
+  /* Fix iOS momentum scroll */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent horizontal scroll from any stray element */
+  overflow-x: hidden;
+  max-width: 100vw;
+  /* Prevent text-inflate on Android */
+  -webkit-text-size-adjust: 100%;
+  /* Remove tap highlight flash (Android Chrome) */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 3. GLOBAL TOUCH TARGET MINIMUM ─────────────────────────
+   WCAG / Apple HIG recommend 44×44 px minimum.               */
+button, a, input, select, textarea,
+[role="button"], [onclick] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* no 300ms delay */
+}
+
+/* ── 4. INPUTS — iOS zoom prevention ────────────────────────
+   iOS Safari zooms in when input font-size < 16px.            */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+select,
+textarea {
+  font-size: 16px !important; /* prevent iOS zoom */
+  border-radius: 10px;        /* prevent iOS pill default */
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+}
+
+/* Date input — fix iOS calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 4px;
+  filter: invert(0.5) sepia(0.5);
+}
+
+/* ── 5. IMAGES — prevent overflow & layout breaks ───────────*/
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  /* Prevent iOS dragging images */
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* ── 6. NAVBAR ───────────────────────────────────────────────
+   Proper notch/Dynamic Island handling.
+   Use padding-top with safe-area so nav text isn't behind 
+   the notch on iPhone X/11/12/13/14/15 Pro.                  */
+#navbar {
+  padding-top: calc(0.75rem + var(--safe-top));
+  padding-left:  calc(0px + var(--safe-left));
+  padding-right: calc(0px + var(--safe-right));
+  /* Force GPU layer for smooth scroll-hide transitions */
+  will-change: transform;
+  /* Ensure backdrop-filter works on iOS Safari */
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+}
+
+/* Nav container horizontal padding — account for notch */
+.nav-container {
+  padding-left:  max(1rem, calc(var(--safe-left)  + 0.75rem));
+  padding-right: max(1rem, calc(var(--safe-right) + 0.75rem));
+  /* Prevent nav items wrapping awkwardly */
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+}
+
+/* Logo — clamp size so it never overflows on tiny screens */
+.nav-logo {
+  font-size: clamp(0.75rem, 3.5vw, 1rem);
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-logo img.logo-img {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+/* Hamburger — large touch target */
+.hamburger {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0.5rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Theme toggle — large enough on mobile */
+.btn-theme-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── 7. MOBILE NAV OVERLAY ───────────────────────────────────
+   Full-screen slide-down overlay. Fixed with safe areas.      */
+.nav-mobile-overlay {
+  /* Use dvh (dynamic viewport height) for iOS Safari toolbar */
+  min-height: 100dvh;
+  min-height: 100vh; /* fallback */
+  padding-top:    calc(70px + var(--safe-top));
+  padding-bottom: calc(2rem  + var(--safe-bottom));
+  padding-left:   calc(1.5rem + var(--safe-left));
+  padding-right:  calc(1.5rem + var(--safe-right));
+  /* Smooth open/close — no scroll behind */
+  overscroll-behavior: contain;
+}
+
+.nav-mobile-overlay .nav-link {
+  font-size: 1.1rem;
+  min-height: 54px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 0.85rem 1.5rem;
+}
+
+.nav-mobile-auth {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.nav-mobile-auth .btn-nav-login,
+.nav-mobile-auth .btn-nav-signup {
+  width: 100%;
+  min-height: 52px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── 8. HERO SECTION ─────────────────────────────────────────
+   100dvh fixes iOS Safari address bar collapsing/expanding.   */
+.hero {
+  min-height: 100dvh;
+  min-height: 100svh; /* small viewport height - safe fallback */
+  /* background-attachment: fixed is broken on iOS Safari,
+     disable it so parallax doesn't glitch */
+  background-attachment: scroll !important;
+}
+
+.hero-img {
+  /* Prevent iOS from over-interpolating the image zoom */
+  image-rendering: auto;
+  /* Fix jank on scroll in iOS */
+  will-change: transform;
+  /* Prevent dragging on touch */
+  pointer-events: none;
+}
+
+.hero-content {
+  min-height: 100dvh;
+  min-height: 100svh;
+  padding-top:    calc(80px + var(--safe-top));
+  padding-bottom: calc(2.5rem + var(--safe-bottom));
+  padding-left:   max(1.25rem, calc(var(--safe-left) + 1rem));
+  padding-right:  max(1.25rem, calc(var(--safe-right) + 1rem));
+  /* Make sure text is always selectable on mobile */
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.hero-headline {
+  /* Prevent font-scale from breaking layout on some Android */
+  font-size: clamp(2.6rem, 13vw, 7rem);
+  line-height: 0.95;
+  /* Force hardware acceleration for smooth appearance */
+  transform: translateZ(0);
+}
+
+.hero-cta {
+  /* Stack buttons on small screens */
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+/* ── 9. BUTTONS — proper active states for touch ────────────*/
+.btn-primary,
+.btn-ghost,
+.btn-nav-signup,
+.btn-nav-login {
+  /* Remove 300ms click delay */
+  touch-action: manipulation;
+  /* Proper active state for touch devices */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent text selection on double-tap */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.btn-primary:active { transform: scale(0.97); opacity: 0.92; }
+.btn-ghost:active   { transform: scale(0.97); opacity: 0.85; }
+
+/* Hero CTAs full width on mobile */
+.hero-cta .btn-primary,
+.hero-cta .btn-ghost {
+  width: 100%;
+  max-width: 340px;
+  min-height: 52px;
+  font-size: 1rem;
+  border-radius: 12px;
+}
+
+/* ── 10. STATS STRIP ─────────────────────────────────────────*/
+.stats-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Prevent overflowing on narrow screens */
+  overflow: hidden;
+}
+
+.stat-item {
+  padding: 0.85rem 0.5rem;
+}
+
+.stat-item strong {
+  font-size: 1.5rem;
+}
+
+.stat-item span {
+  font-size: 0.62rem;
+}
+
+/* ── 11. INDIA MAP ───────────────────────────────────────────
+   Leaflet maps have touch issues — this fixes pan/zoom.       */
+.india-map-container {
+  height: 260px;
+  /* Allow map to receive touch events */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Prevent tap highlight on map tiles */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Leaflet controls — bigger for touch */
+.leaflet-control-zoom a {
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 18px !important;
+}
+
+.leaflet-touch .leaflet-control-zoom a {
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+}
+
+/* Map panel — proper mobile layout */
+.india-map-panel {
+  min-height: 200px;
+  /* Scrollable on small screens */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-hint-chips span {
+  min-height: 40px;
+  min-width: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.btn-map-chat,
+.btn-map-plan {
+  min-height: 50px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  width: 100%;
+}
+
+/* ── 12. AI PLANNER WIZARD ───────────────────────────────────
+   Fix background-attachment: fixed (broken on iOS Safari).    */
+.planner-outer-section {
+  background-attachment: scroll !important; /* iOS Safari fix */
+  background-size: cover;
+  background-position: center center;
+}
+
+.wizard-card {
+  /* Prevent horizontal overflow on tiny phones */
+  width: calc(100% - 2.5rem);
+  max-width: 720px;
+  margin: 0 auto;
+  overflow: hidden;
+  /* Prevent content from overflowing on small screen */
+  box-sizing: border-box;
+}
+
+/* Step bar — scrollable if too wide */
+.wiz-step-bar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 1.25rem 1rem 0;
+  margin-bottom: 1.5rem;
+}
+.wiz-step-bar::-webkit-scrollbar { display: none; }
+
+/* Wizard panels — proper padding */
+.wiz-panel {
+  padding: 0 0.85rem 1.25rem;
+}
+
+/* Wizard question text — scale properly on small screens */
+.wiz-question {
+  font-size: clamp(1.1rem, 5vw, 1.75rem);
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+}
+
+/* Search input — prevent zoom on iOS */
+.wiz-search-input {
+  font-size: 16px;
+  min-height: 52px;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
+}
+
+/* Location button — bigger touch area */
+.wiz-loc-btn {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+}
+
+/* Chips — proper touch sizing */
+.wiz-chip {
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.wiz-chip:active { opacity: 0.75; transform: scale(0.96); }
+
+/* Date grid — stack on tiny screens */
+.wiz-date-grid {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.wiz-date-field input[type="date"] {
+  font-size: 16px;      /* prevent iOS zoom */
+  min-height: 52px;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--bg-2);
+  color: var(--text);
+}
+
+/* Traveler counter row */
+.wiz-traveler-row {
+  padding: 0.9rem 1rem;
+}
+
+.wiz-count-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Budget grid — stack on small screens */
+.wiz-budget-grid {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.wiz-budget-card {
+  padding: 0.9rem 0.5rem;
+  cursor: pointer;
+}
+.wiz-budget-card:active { transform: scale(0.97); }
+
+.wiz-b-title { font-size: 0.72rem; }
+.wiz-b-range { font-size: 0.62rem; }
+.wiz-b-icon  { font-size: 1.3rem; }
+
+/* Summary grid */
+.wiz-summary-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+/* Wizard footer — sticky on mobile */
+.wiz-footer {
+  padding: 0.85rem 1rem;
+  position: sticky;
+  bottom: 0;
+  /* Safe area for home bar */
+  padding-bottom: calc(0.85rem + var(--safe-bottom));
+  z-index: 10;
+  background: rgba(10, 20, 18, 0.96);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.wiz-btn-back,
+.wiz-btn-next {
+  min-height: 46px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+.wiz-btn-next {
+  padding: 0.65rem 1.4rem;
+}
+
+/* Result cards — single column on mobile */
+.wiz-result-cards {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+/* Result card styling */
+.result-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.result-card h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--lc);
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.result-card ul li {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  line-height: 1.5;
+}
+.result-card ul li::before {
+  content: '▸';
+  color: var(--lc);
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+/* Budget breakdown rows */
+.budget-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.budget-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+.budget-row span:first-child { color: var(--text-muted); }
+.budget-row span:last-child  { color: var(--text); font-weight: 500; }
+.budget-row.total {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+.budget-row.total span { color: var(--lc) !important; font-weight: 700; }
+
+/* Day plan items */
+.day-plan-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.day-plan-item:last-child { border-bottom: none; }
+.day-plan-item strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--lc);
+  margin-bottom: 0.35rem;
+}
+.day-plan-item p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+/* ── 13. PLACES GRID ──────────────────────────────────────── */
+.places-grid {
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  padding: 0 1rem;
+}
+
+.place-card {
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.place-card:active { transform: scale(0.98); }
+
+.place-img-wrap {
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.place-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* iOS smooth image scroll */
+  will-change: transform;
+}
+
+.place-badge {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  font-size: 0.68rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 99px;
+  font-weight: 700;
+  z-index: 2;
+}
+
+.place-info {
+  padding: 0.85rem 1rem;
+}
+.place-info h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+.place-info p  { font-size: 0.8rem; line-height: 1.55; }
+
+/* ── 14. FEATURES GRID ───────────────────────────────────── */
+.features-grid {
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  padding: 0 1rem;
+}
+
+.feature-card {
+  padding: 1.35rem 1.25rem;
+  border-radius: 14px;
+  cursor: default;
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  margin-bottom: 0.9rem;
+}
+
+.feature-card h3 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+.feature-card p  { font-size: 0.82rem; line-height: 1.65; }
+
+/* ── 15. ABOUT SECTION ───────────────────────────────────── */
+.about-inner {
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 0 1rem;
+  margin-top: 1.5rem;
+}
+
+.about-text p { font-size: 0.86rem; line-height: 1.8; }
+
+.about-img-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.about-img-grid img {
+  height: 140px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  /* Reset staggered offsets on mobile */
+  margin-top: 0 !important;
+}
+
+.about-values { gap: 0.55rem; }
+.about-value  { font-size: 0.83rem; }
+
+.about-stats-row {
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.about-stat strong { font-size: 1.35rem; }
+.about-stat span   { font-size: 0.7rem; }
+
+/* ── 16. CONTACT SECTION ─────────────────────────────────── */
+.contact-inner {
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+.form-input {
+  font-size: 16px; /* prevent iOS zoom */
+  min-height: 52px;
+  border-radius: 10px;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-info { gap: 1rem; }
+.contact-info-top {
+  flex-direction: column;
+  padding: 1.25rem;
+  gap: 1rem;
+}
+.contact-info-top .contact-item { min-width: unset; max-width: unset; }
+
+/* ── 17. CITY PAGE ───────────────────────────────────────── */
+#cityPage {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bg);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* City hero — proper image display */
+.city-hero {
+  position: relative;
+  height: 42vh;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+.city-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  /* No parallax on mobile — iOS can't handle it */
+  transform: none !important;
+}
+
+.city-hero-blur-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.2) 0%,
+    rgba(0,0,0,0.55) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.city-hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+}
+
+.city-back-btn {
+  position: absolute;
+  top: calc(0.75rem + var(--safe-top));
+  left: max(0.85rem, calc(var(--safe-left) + 0.5rem));
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  border-radius: 10px;
+  z-index: 3;
+  cursor: pointer;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.city-back-btn:active { opacity: 0.75; }
+
+.city-hero-title {
+  font-size: clamp(2rem, 10vw, 3.5rem);
+  line-height: 1;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.city-hero-tagline {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.city-plan-btn {
+  align-self: flex-start;
+  min-height: 46px;
+  font-size: 0.88rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* City tabs — horizontal scroll */
+.city-tabs-wrap {
+  padding: 1rem;
+}
+
+.city-tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.2rem;
+  /* Prevent accidental vertical scroll while swiping tabs */
+  scroll-snap-type: x proximity;
+}
+.city-tabs::-webkit-scrollbar { display: none; }
+
+.city-tab {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  border-radius: 6px 6px 0 0;
+  white-space: nowrap;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+/* City info cards — 2-col on mobile */
+.city-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.city-info-card {
+  padding: 0.85rem;
+  border-radius: 12px;
+  cursor: default;
+}
+.city-info-card .card-icon { font-size: 1.1rem; margin-bottom: 0.45rem; }
+.city-info-card h4 { font-size: 0.82rem; line-height: 1.3; margin-bottom: 0.3rem; }
+.city-info-card p  { font-size: 0.73rem; line-height: 1.5; }
+.city-info-card .price-tag { font-size: 0.7rem; margin-top: 0.35rem; }
+
+/* ── 18. CHATBOT ─────────────────────────────────────────── */
+.chatbot-container {
+  bottom: calc(1rem + var(--safe-bottom));
+  right: calc(0.85rem + var(--safe-right));
+  z-index: 900;
+}
+
+.chatbot-btn {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Hide text label on mobile — icon only */
+.chatbot-btn > span:not(.chatbot-icon):not(.chat-notif) {
+  display: none;
+}
+.chatbot-icon { font-size: 1.4rem; }
+
+/* Chat window — full width on mobile */
+.chatbot-window {
+  /* Subtract safe area so window doesn't overlap home indicator */
+  width: calc(100vw - 1.25rem);
+  max-width: calc(100vw - 1.25rem);
+  /* Use dvh for proper height accounting for browser chrome */
+  height: min(500px, calc(100dvh - 130px));
+  max-height: calc(100dvh - 130px);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.chat-header { padding: 0.8rem 1rem; flex-shrink: 0; }
+.chat-header-info h4 { font-size: 0.88rem; }
+.chat-status { font-size: 0.68rem; }
+.chat-close {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.chat-messages {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0.75rem;
+}
+
+.msg-content {
+  max-width: 88%;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  /* Prevent long URLs from breaking layout */
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Chat input area */
+.chat-input-area {
+  padding: 0.5rem 0.75rem calc(0.75rem + var(--safe-bottom));
+  flex-shrink: 0;
+}
+
+.chat-suggestions {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.chat-suggestions button {
+  min-height: 32px;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 99px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#chatInput {
+  font-size: 16px; /* prevent iOS zoom */
+  min-height: 44px;
+  border-radius: 99px;
+  padding: 0.6rem 0.9rem;
+}
+
+.chat-send {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── 19. AUTH MODALS ─────────────────────────────────────── */
+.auth-modal-backdrop {
+  /* Use fixed so it covers everything including safe areas */
+  position: fixed;
+  inset: 0;
+  /* Bottom-sheet on mobile */
+  align-items: flex-end;
+  justify-content: center;
+  /* Enable overscroll containment inside modal */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.auth-modal {
+  width: 100%;
+  max-width: 100%;
+  /* Slide up from bottom */
+  border-radius: 20px 20px 0 0;
+  max-height: 92dvh;
+  max-height: 92svh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Add bottom safe area padding */
+  padding-bottom: var(--safe-bottom);
+}
+
+.auth-modal-inner {
+  padding: 1.35rem 1.25rem calc(1.75rem + var(--safe-bottom));
+}
+
+/* Auth inputs — font-size 16 prevents iOS zoom */
+.auth-input {
+  font-size: 16px !important;
+  min-height: 52px;
+  border-radius: 10px;
+}
+
+/* Auth row — stack on mobile */
+.auth-row {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+/* Social buttons — stack on mobile */
+.auth-social {
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.auth-social-btn {
+  min-height: 52px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.auth-submit {
+  min-height: 54px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.auth-close {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  cursor: pointer;
+  top: 0.85rem;
+  right: 0.85rem;
+}
+
+.auth-logo-icon {
+  width: 64px;
+  height: 64px;
+}
+
+.auth-logo-wrap h2 { font-size: 1.35rem; }
+.auth-logo-wrap p  { font-size: 0.8rem; }
+
+/* Password toggle — larger touch area */
+.auth-pw-toggle {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+/* ── 20. TOAST ───────────────────────────────────────────── */
+.toast {
+  bottom: calc(4.5rem + var(--safe-bottom));
+  max-width: calc(100vw - 2rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  font-size: 0.82rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 99px;
+  text-align: center;
+  /* Prevent overflowing narrow screens */
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── 21. FOOTER ──────────────────────────────────────────── */
+.footer-inner {
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 2rem 1rem calc(1.5rem + var(--safe-bottom));
+}
+
+.footer-cols-wrap {
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.footer-col h4    { font-size: 0.7rem; margin-bottom: 0.75rem; }
+.footer-col ul li a { font-size: 0.8rem; }
+.footer-col p       { font-size: 0.8rem; }
+
+.footer-bottom {
+  padding: 0.85rem 1rem calc(0.85rem + var(--safe-bottom));
+}
+.footer-bottom p { font-size: 0.75rem; }
+
+.social-links { gap: 0.45rem; }
+.social-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 8px;
+}
+
+/* ── 22. WELCOME OVERLAY ─────────────────────────────────── */
+#welcomeOverlay {
+  min-height: 100dvh;
+  min-height: 100svh;
+  /* Prevent interaction with elements below */
+  pointer-events: all;
+}
+
+.welcome-word {
+  font-size: clamp(2rem, 10vw, 5rem);
+}
+
+/* ── 23. LOADER ──────────────────────────────────────────── */
+#loader {
+  min-height: 100dvh;
+}
+
+/* ── 24. SECTION COMMONS ─────────────────────────────────── */
+.section,
+.map-outer-section {
+  padding: 3.5rem 0;
+}
+
+.section-header-wrap {
+  padding: 0 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.section-title-main {
+  font-size: clamp(1.5rem, 6vw, 3rem);
+}
+
+.section-sub-text {
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+/* ── 25. SCROLL REVEAL ───────────────────────────────────── */
+.fade-in {
+  /* Disable if user prefers reduced motion */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-img { animation: none !important; }
+  .loader-chakra { animation: none !important; }
+  .welcome-word, .welcome-lang { animation: none !important; opacity: 1 !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BREAKPOINTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── EXTRA SMALL: 360px and below (small Android phones) ── */
+@media (max-width: 360px) {
+  .nav-logo { font-size: 0.7rem; }
+  .nav-logo img.logo-img { width: 28px; height: 28px; }
+
+  .hero-headline { font-size: clamp(2.2rem, 14vw, 3rem); }
+
+  .stats-strip { grid-template-columns: 1fr 1fr; }
+  .stat-item strong { font-size: 1.3rem; }
+  .stat-item span   { font-size: 0.58rem; }
+
+  .wiz-budget-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+  .wiz-summary-grid { grid-template-columns: 1fr; }
+
+  .city-cards-grid { grid-template-columns: 1fr; }
+
+  .footer-cols-wrap { grid-template-columns: 1fr; }
+
+  .features-grid { grid-template-columns: 1fr; }
+
+  .auth-logo-icon { width: 54px; height: 54px; }
+}
+
+/* ── SMALL: 380–479px ──────────────────────────────────── */
+@media (min-width: 380px) and (max-width: 479px) {
+  .places-grid { grid-template-columns: 1fr; }
+
+  .wiz-budget-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .city-cards-grid { grid-template-columns: 1fr 1fr; }
+
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+/* ── MEDIUM MOBILE: 480–639px ──────────────────────────── */
+@media (min-width: 480px) {
+  .hero-cta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero-cta .btn-primary,
+  .hero-cta .btn-ghost {
+    width: auto;
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .places-grid { grid-template-columns: 1fr 1fr; }
+
+  .features-grid { grid-template-columns: 1fr 1fr; }
+
+  .wiz-date-grid { grid-template-columns: 1fr 1fr; }
+
+  .auth-row { grid-template-columns: 1fr 1fr; }
+
+  .auth-social { flex-direction: row; }
+
+  .results-cards-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── TABLET: 640–899px ──────────────────────────────────── */
+@media (min-width: 640px) {
+  .hero-content {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero-cta {
+    max-width: none;
+    justify-content: flex-start;
+  }
+  .hero-cta .btn-primary,
+  .hero-cta .btn-ghost {
+    width: auto;
+    max-width: none;
+  }
+
+  .stats-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-item { padding: 0.65rem 2rem; border: none; }
+  .stat-divider { display: block; width: 1px; height: 36px; background: var(--border); }
+
+  .india-map-container { height: 340px; }
+
+  .places-grid { grid-template-columns: 1fr 1fr; gap: 1rem; padding: 0 1.25rem; }
+
+  .features-grid { grid-template-columns: 1fr 1fr; padding: 0 1.25rem; }
+
+  .wizard-card { width: calc(100% - 2.5rem); }
+
+  .chatbot-window { width: 340px; max-width: 340px; }
+
+  .auth-modal {
+    max-width: 440px;
+    border-radius: 20px;
+    margin: auto;
+    max-height: 90dvh;
+  }
+  .auth-modal-backdrop { align-items: center; padding: 1rem; }
+
+  .about-img-grid img { height: 155px; }
+
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-cols-wrap { display: contents; }
+
+  .city-hero { height: 50vh; min-height: 280px; }
+
+  /* Restore staggered image offsets on tablet+ */
+  .about-img-grid img:nth-child(2) { margin-top: 1.25rem; }
+  .about-img-grid img:nth-child(3) { margin-top: -1.25rem; }
+}
+
+/* ── DESKTOP: 900px+ ────────────────────────────────────── */
+@media (min-width: 900px) {
+  #navbar {
+    padding-top: calc(1rem + var(--safe-top));
+    padding-bottom: 1rem;
+  }
+
+  .nav-container { padding: 0 1.5rem; }
+  .nav-logo { font-size: 1.2rem; }
+  .nav-logo img.logo-img { width: 42px; height: 42px; }
+  .nav-links  { display: flex; }
+  .nav-actions { display: flex; }
+  .hamburger  { display: none; }
+
+  /* Re-enable parallax on desktop where it works */
+  .planner-outer-section { background-attachment: fixed !important; }
+  .hero { background-attachment: scroll; }
+
+  .india-map-layout {
+    flex-direction: row;
+    height: 500px;
+    gap: 1.25rem;
+    padding: 0 1.5rem;
+  }
+  .india-map-container { flex: 1; height: 100%; }
+  .india-map-panel { width: 340px; flex-shrink: 0; }
+
+  .places-grid {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 1.5rem;
+    gap: 1rem;
+  }
+  .place-img-wrap { height: 230px; }
+
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .about-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    padding: 0 1.5rem;
+  }
+  .about-img-grid img { height: 190px; }
+  .about-img-grid img:nth-child(2) { margin-top: 1.5rem; }
+  .about-img-grid img:nth-child(3) { margin-top: -1.5rem; }
+  .about-img-grid img:nth-child(4) { margin-top: 0; }
+
+  .contact-inner { padding: 0 1.5rem; }
+
+  .footer-inner {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 3rem;
+    padding: 4rem 1.5rem 3rem;
+  }
+  .footer-cols-wrap { display: contents; }
+
+  .wizard-card { padding: 0 1.5rem; }
+  .wiz-panel { padding: 0 1rem 1.5rem; }
+  .wiz-footer { position: static; padding: 1.1rem 1.5rem; background: rgba(10,20,18,.5); backdrop-filter: none; }
+
+  .wiz-result-cards { grid-template-columns: 1fr 1fr; }
+
+  .chatbot-btn {
+    width: auto;
+    height: auto;
+    border-radius: 99px;
+    padding: 0.7rem 1.2rem;
+    gap: 0.4rem;
+  }
+  .chatbot-btn > span:not(.chatbot-icon):not(.chat-notif) { display: inline; }
+  .chatbot-window { width: 360px; max-width: 360px; }
+  .chatbot-container {
+    right: calc(1.25rem + var(--safe-right));
+    bottom: calc(1.5rem + var(--safe-bottom));
+  }
+
+  .city-hero { height: 56vh; min-height: 320px; }
+  .city-hero-content { padding: 2.5rem 1.5rem; }
+  .city-tabs-wrap { padding: 2rem 1.5rem; }
+  .city-cards-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+  .section, .map-outer-section { padding: 5.5rem 0; }
+  .section-header-wrap { padding: 0 1.5rem; margin-bottom: 3rem; }
+
+  .hero-cta {
+    flex-direction: row;
+    justify-content: flex-start;
+    max-width: none;
+  }
+  .hero-cta .btn-primary,
+  .hero-cta .btn-ghost {
+    width: auto;
+    max-width: none;
+  }
+}
+
+/* ── LANDSCAPE PHONE ─────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    min-height: 100dvw; /* Use width in landscape */
+  }
+  .hero-content {
+    min-height: auto;
+    padding-top: calc(60px + var(--safe-top));
+    padding-bottom: 1.5rem;
+    justify-content: center;
+  }
+  .hero-headline { font-size: clamp(1.8rem, 8vw, 3rem); }
+
+  #welcomeOverlay { min-height: 100dvh; }
+
+  .auth-modal { max-height: 95dvh; }
+
+  .chatbot-window {
+    height: min(360px, calc(100dvh - 80px));
+  }
+
+  /* Wizard on landscape phone */
+  .wiz-step-bar { padding: 0.75rem 1rem 0; margin-bottom: 0.75rem; }
+  .wiz-panel { padding: 0 0.75rem 1rem; }
+  .wiz-question { font-size: 1rem; }
+}
+
+/* ── iOS SPECIFIC FIXES ──────────────────────────────────── */
+/* Target iOS Safari specifically */
+@supports (-webkit-touch-callout: none) {
+  /* Disable touch callout on long-press for images */
+  img { -webkit-touch-callout: none; }
+
+  /* Fix iOS position: fixed inside transforms */
+  .auth-modal-backdrop { transform: translateZ(0); }
+
+  /* Fix iOS rubber-band on modal scroll */
+  .auth-modal {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix iOS chat window height — accounts for Safari toolbar */
+  .chatbot-window {
+    height: min(500px, calc(100svh - 130px));
+  }
+
+  /* Fix iOS select appearance */
+  select {
+    background-image: none;
+    -webkit-appearance: none;
+  }
+
+  /* Fix iOS button styling */
+  button {
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  .btn-primary, .btn-ghost, .wiz-btn-next, .wiz-btn-back,
+  .auth-submit, .chat-send, .chatbot-btn, .city-plan-btn,
+  .btn-map-plan, .btn-map-chat, .btn-nav-login, .btn-nav-signup {
+    border-radius: inherit;
+  }
+}
+
+/* ── ANDROID / CHROME SPECIFIC FIXES ────────────────────────*/
+/* Prevent overscroll glow effect */
+* {
+  overscroll-behavior: inherit;
+}
+html, body { overscroll-behavior: none; }
+
+/* Scrollable containers — allow overscroll inside */
+.chat-messages,
+.auth-modal,
+#cityPage,
+.india-map-panel,
+.city-tabs {
+  overscroll-behavior: contain;
+}
+
+/* ── HIGH DPI / RETINA ───────────────────────────────────── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Ensure borders are crisp on retina */
+  .place-card,
+  .feature-card,
+  .city-info-card,
+  .wiz-traveler-row,
+  .wiz-budget-card {
+    border-width: 0.5px;
+  }
+}
+
+/* ── DARK MODE MEDIA QUERY — system preference ───────────── */
+/* (Site uses data-theme attribute, this is a bonus for system sync) */
+@media (prefers-color-scheme: dark) {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+}

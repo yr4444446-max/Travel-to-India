@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Plan Your Trip India – AI-Powered Travel Planner</title>
+  <meta name="description"
+    content="Discover India with AI-powered travel planning. Budget, itinerary, hidden gems & street food — all in one place." />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ── CITY HERO IMAGE ── */
+    .city-hero {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .city-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+      transition: transform 0.6s ease;
+    }
+
+    .city-hero:hover .city-hero-img {
+      transform: scale(1.04);
+    }
+
+    .city-hero-blur-layer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, .25), rgba(0, 0, 0, .62));
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .city-hero-content {
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- WELCOME OVERLAY -->
+  <div id="welcomeOverlay">
+    <div class="welcome-word" id="welcomeWord"></div>
+    <div class="welcome-lang" id="welcomeLang"></div>
+    <div class="welcome-dots" id="welcomeDots"></div>
+  </div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-chakra">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="44" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="5 7" />
+          <circle cx="50" cy="50" r="28" stroke="var(--gold)" stroke-width="1" stroke-dasharray="3 9" />
+          <circle cx="50" cy="50" r="6" fill="var(--gold)" />
+          <line x1="50" y1="6" x2="50" y2="94" stroke="var(--gold)" stroke-width="0.6" opacity="0.5" />
+          <line x1="6" y1="50" x2="94" y2="50" stroke="var(--gold)" stroke-width="0.6" opacity="0.5" />
+          <circle cx="50" cy="6" r="2.5" fill="var(--gold)" />
+          <circle cx="50" cy="94" r="2.5" fill="var(--gold)" />
+          <circle cx="6" cy="50" r="2.5" fill="var(--gold)" />
+          <circle cx="94" cy="50" r="2.5" fill="var(--gold)" />
+        </svg>
+      </div>
+      <div class="loader-text">PLAN YOUR TRIP INDIA</div>
+      <div class="loader-bar"><span></span></div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <header id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <img src="india-trip-logo.svg" alt="Logo" class="logo-img" />
+        <span class="logo-gem">✦</span> Plan Your Trip India
+      </a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#india-map" class="nav-link">India Map</a>
+        <a href="#places" class="nav-link">Places</a>
+        <a href="#planner" class="nav-link">AI Planner</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+      <div class="nav-actions" id="navActions">
+        <button class="btn-nav-login" onclick="openModal('loginModal')">Login</button>
+        <button class="btn-nav-signup" onclick="openModal('signupModal')">Sign Up ✦</button>
+      </div>
+      <button class="btn-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme"
+        title="Toggle light/dark theme">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+          <span class="toggle-moon">🌙</span>
+          <span class="toggle-sun">☀️</span>
+        </span>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV OVERLAY -->
+  <div class="nav-mobile-overlay" id="mobileNav">
+    <a href="#home" class="nav-link" onclick="closeMobileNav()">Home</a>
+    <a href="#india-map" class="nav-link" onclick="closeMobileNav()">India Map</a>
+    <a href="#places" class="nav-link" onclick="closeMobileNav()">Places</a>
+    <a href="#planner" class="nav-link" onclick="closeMobileNav()">AI Planner</a>
+    <a href="#about" class="nav-link" onclick="closeMobileNav()">About</a>
+    <a href="#contact" class="nav-link" onclick="closeMobileNav()">Contact</a>
+    <div class="nav-mobile-divider"></div>
+    <div class="nav-mobile-auth">
+      <button class="btn-nav-login" onclick="openModal('loginModal');closeMobileNav()">Login</button>
+      <button class="btn-nav-signup" onclick="openModal('signupModal');closeMobileNav()">Sign Up ✦</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="hero-bg">
+      <img src="Taj%20Mahal.jpg" alt="Taj Mahal India" class="hero-img" onerror="this.style.display='none'" />
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-greeting" id="greetingText">Namaste 🙏</p>
+      <h1 class="hero-headline">PLAN YOUR TRIP<br><span class="headline-accent">INDIA</span></h1>
+      <p class="hero-sub">Discover India with AI-powered travel planning</p>
+      <div class="hero-cta">
+        <a href="#planner" class="btn-primary">Start Planning ✦</a>
+        <a href="#india-map" class="btn-ghost">Explore Map</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line">
+        <div class="scroll-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat-item"><strong>28+</strong><span>States Covered</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><strong>500+</strong><span>Hidden Gems</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><strong>AI</strong><span>Powered Itineraries</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><strong>Free</strong><span>No Booking Fees</span></div>
+  </div>
+
+  <!-- ═══ INDIA MAP SECTION ═══ -->
+  <section id="india-map" class="section map-outer-section">
+    <div class="section-header-wrap">
+      <div class="section-label-tag">Interactive</div>
+      <h2 class="section-title-main">Click Any State on the<br><em>Map of India</em></h2>
+      <p class="section-sub-text">Tap a state to get instant AI-powered travel recommendations, best places, food &
+        tips.</p>
+    </div>
+
+    <div class="india-map-layout">
+      <div class="india-map-container">
+        <div id="indiaMap"></div>
+      </div>
+      <div class="india-map-panel" id="indiaMapPanel">
+        <div class="map-panel-default" id="mapPanelDefault">
+          <div class="map-pin-bounce">📍</div>
+          <h3>Click Any State</h3>
+          <p>Select a state on the map to instantly get AI travel recommendations, famous places, local food and hidden
+            gems.</p>
+          <div class="map-hint-chips">
+            <span onclick="triggerStateAI('Rajasthan')">Rajasthan</span>
+            <span onclick="triggerStateAI('Kerala')">Kerala</span>
+            <span onclick="triggerStateAI('Goa')">Goa</span>
+            <span onclick="triggerStateAI('Himachal Pradesh')">Himachal</span>
+          </div>
+        </div>
+        <div class="map-panel-result" id="mapPanelResult" style="display:none">
+          <div class="map-result-header">
+            <div class="map-result-flag" id="mapStateFlag">🗺️</div>
+            <div>
+              <h3 id="mapStateName">State</h3>
+              <p id="mapStateTagline" class="map-state-tagline">Loading...</p>
+            </div>
+          </div>
+          <div class="map-result-loading" id="mapResultLoading">
+            <div class="ai-typing-dots"><span></span><span></span><span></span></div>
+            <p>AI is thinking...</p>
+          </div>
+          <div class="map-result-content" id="mapResultContent" style="display:none"></div>
+          <div class="map-result-actions" id="mapResultActions" style="display:none">
+            <button class="btn-map-chat" onclick="chatAboutState()">💬 Chat about this state</button>
+            <button class="btn-map-plan" onclick="planThisState()">✦ Plan a Trip Here</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ AI PLANNER — 5-STEP WIZARD ═══ -->
+  <section id="planner" class="planner-outer-section">
+    <!-- Photo Banner -->
+    <div class="planner-photo-banner">
+      <img src="in13.jpeg" alt="India Travel" class="planner-banner-img" />
+      <div class="planner-banner-overlay">
+        <div class="section-label-tag" style="background:rgba(0,0,0,0.4);border-color:rgba(171,209,198,0.5);">✦ AI
+          Planner</div>
+        <h2 class="section-title-main" style="color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.7);">Plan Your
+          Next<br><em>India Adventure</em></h2>
+        <p class="section-sub-text" style="color:rgba(255,255,255,0.75);">Tell us your preferences — our AI crafts the
+          perfect itinerary</p>
+      </div>
+    </div>
+
+    <!-- WIZARD CARD -->
+    <div class="wizard-card fade-in" id="wizardCard">
+
+      <!-- STEP BAR -->
+      <div class="wiz-step-bar" id="wizStepBar">
+        <div class="wiz-step-item active" id="wizStep1">
+          <div class="wiz-step-circle">1</div>
+          <div class="wiz-step-label">Destination</div>
+        </div>
+        <div class="wiz-step-item" id="wizStep2">
+          <div class="wiz-step-circle">2</div>
+          <div class="wiz-step-label">Dates</div>
+        </div>
+        <div class="wiz-step-item" id="wizStep3">
+          <div class="wiz-step-circle">3</div>
+          <div class="wiz-step-label">Preferences</div>
+        </div>
+        <div class="wiz-step-item" id="wizStep4">
+          <div class="wiz-step-circle">4</div>
+          <div class="wiz-step-label">Budget</div>
+        </div>
+        <div class="wiz-step-item" id="wizStep5">
+          <div class="wiz-step-circle">5</div>
+          <div class="wiz-step-label">Review</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: DESTINATION ── -->
+      <div class="wiz-panel active" id="wizPanel1">
+        <div class="wiz-question">Where do you want to go?</div>
+        <div class="wiz-hint">Enter a destination or let us detect your location</div>
+
+        <div class="wiz-search-wrap">
+          <svg class="wiz-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input type="text" class="wiz-search-input" id="wizDestInput"
+            placeholder="e.g. Jaipur, Goa, Kerala, Ladakh..." oninput="wizFilterChips(this.value)" />
+        </div>
+
+        <button class="wiz-loc-btn" id="useLocationBtn" onclick="useCurrentLocation()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+            <circle cx="12" cy="12" r="9" opacity=".25" />
+          </svg>
+          <span id="locationBtnText">Use My Current Location</span>
+        </button>
+
+        <div class="wiz-chips-label">Popular Destinations</div>
+        <div class="wiz-chips-wrap" id="wizDestChips">
+          <div class="wiz-chip" onclick="wizSelectDest('Jaipur')">🏯 Jaipur</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Goa')">🏖️ Goa</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Kerala')">🌿 Kerala</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Manali')">🏔️ Manali</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Varanasi')">🕯️ Varanasi</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Ladakh')">🌌 Ladakh</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Mumbai')">🌆 Mumbai</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Rajasthan')">🐪 Rajasthan</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Andaman')">🐠 Andaman</div>
+          <div class="wiz-chip" onclick="wizSelectDest('Rishikesh')">🧘 Rishikesh</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: DATES ── -->
+      <div class="wiz-panel" id="wizPanel2">
+        <div class="wiz-question">When are you travelling?</div>
+        <div class="wiz-hint">Pick your travel window and we'll tailor the best experiences</div>
+
+        <div class="wiz-date-grid">
+          <div class="wiz-date-field">
+            <label>Departure Date</label>
+            <input type="date" id="wizDateFrom" onchange="wizCalcDuration()" />
+          </div>
+          <div class="wiz-date-field">
+            <label>Return Date</label>
+            <input type="date" id="wizDateTo" onchange="wizCalcDuration()" />
+          </div>
+        </div>
+
+        <div class="wiz-duration-badge" id="wizDurationBadge">📅 Select dates to see trip duration</div>
+
+        <div class="wiz-chips-label">Quick Duration</div>
+        <div class="wiz-chips-wrap">
+          <div class="wiz-chip" onclick="wizSetDuration(3)">🌅 Weekend (3 days)</div>
+          <div class="wiz-chip" onclick="wizSetDuration(5)">✈️ Short Trip (5 days)</div>
+          <div class="wiz-chip" onclick="wizSetDuration(7)">🗺️ Week Away (7 days)</div>
+          <div class="wiz-chip" onclick="wizSetDuration(10)">🏕️ Extended (10 days)</div>
+          <div class="wiz-chip" onclick="wizSetDuration(14)">🌍 Two Weeks (14 days)</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: PREFERENCES ── -->
+      <div class="wiz-panel" id="wizPanel3">
+        <div class="wiz-question">What's your travel style?</div>
+        <div class="wiz-hint">Select all that apply — the more you choose, the better your plan</div>
+
+        <div class="wiz-chips-label">Travel Vibe</div>
+        <div class="wiz-chips-wrap">
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🧭 Adventure</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🏛️ Culture & History</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🧘 Spiritual Journey</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">💑 Romantic Getaway</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">👨‍👩‍👧 Family Fun</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🍜 Food & Cuisine</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">📸 Photography</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🌿 Nature & Wildlife</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">🏄 Beach & Water Sports</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'style')">💎 Hidden Gems</div>
+        </div>
+
+        <div class="wiz-chips-label" style="margin-top:.75rem">How many travelers?</div>
+        <div class="wiz-traveler-row">
+          <div class="wiz-traveler-info">
+            <h4>Adults</h4>
+            <p>Ages 13 and above</p>
+          </div>
+          <div class="wiz-trav-counter">
+            <button class="wiz-count-btn" onclick="wizChangeTrav('adults',-1)" id="wizAdultsDown">−</button>
+            <span class="wiz-count-val" id="wizAdultsCount">2</span>
+            <button class="wiz-count-btn" onclick="wizChangeTrav('adults',1)">+</button>
+          </div>
+        </div>
+        <div class="wiz-traveler-row">
+          <div class="wiz-traveler-info">
+            <h4>Children</h4>
+            <p>Ages 2 – 12</p>
+          </div>
+          <div class="wiz-trav-counter">
+            <button class="wiz-count-btn" onclick="wizChangeTrav('children',-1)" id="wizChildDown">−</button>
+            <span class="wiz-count-val" id="wizChildCount">0</span>
+            <button class="wiz-count-btn" onclick="wizChangeTrav('children',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: BUDGET ── -->
+      <div class="wiz-panel" id="wizPanel4">
+        <div class="wiz-question">What's your budget?</div>
+        <div class="wiz-hint">Per person, for the entire trip</div>
+
+        <div class="wiz-budget-grid">
+          <div class="wiz-budget-card" onclick="wizSelectBudget(this,'budget')">
+            <div class="wiz-b-icon">🎒</div>
+            <div class="wiz-b-title">Budget</div>
+            <div class="wiz-b-range">₹5k – ₹15k</div>
+          </div>
+          <div class="wiz-budget-card selected" onclick="wizSelectBudget(this,'normal')">
+            <div class="wiz-b-icon">✈️</div>
+            <div class="wiz-b-title">Mid-Range</div>
+            <div class="wiz-b-range">₹15k – ₹40k</div>
+          </div>
+          <div class="wiz-budget-card" onclick="wizSelectBudget(this,'luxury')">
+            <div class="wiz-b-icon">👑</div>
+            <div class="wiz-b-title">Luxury</div>
+            <div class="wiz-b-range">₹40k+</div>
+          </div>
+        </div>
+
+        <div class="wiz-chips-label">Accommodation Style</div>
+        <div class="wiz-chips-wrap">
+          <div class="wiz-chip" onclick="wizToggleChip(this,'accom')">🏨 Hotel</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'accom')">🏰 Heritage / Palace</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'accom')">🏡 Homestay</div>
+          <div class="wiz-chip selected" onclick="wizToggleChip(this,'accom')">🛏️ Resort</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'accom')">🎒 Hostel / Backpacker</div>
+          <div class="wiz-chip" onclick="wizToggleChip(this,'accom')">⛺ Camping / Glamping</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5: REVIEW ── -->
+      <div class="wiz-panel" id="wizPanel5">
+        <div class="wiz-question">Your Trip at a Glance</div>
+        <div class="wiz-hint">Review before we generate your personalised itinerary</div>
+
+        <div class="wiz-summary-grid">
+          <div class="wiz-summary-item">
+            <div class="wiz-s-icon">📍</div>
+            <div class="wiz-s-label">Destination</div>
+            <div class="wiz-s-value" id="wizSumDest">—</div>
+          </div>
+          <div class="wiz-summary-item">
+            <div class="wiz-s-icon">📅</div>
+            <div class="wiz-s-label">Duration</div>
+            <div class="wiz-s-value" id="wizSumDuration">—</div>
+          </div>
+          <div class="wiz-summary-item">
+            <div class="wiz-s-icon">👥</div>
+            <div class="wiz-s-label">Travelers</div>
+            <div class="wiz-s-value" id="wizSumTravelers">—</div>
+          </div>
+          <div class="wiz-summary-item">
+            <div class="wiz-s-icon">💰</div>
+            <div class="wiz-s-label">Budget</div>
+            <div class="wiz-s-value" id="wizSumBudget">—</div>
+          </div>
+          <div class="wiz-summary-item" style="grid-column:1/-1">
+            <div class="wiz-s-icon">🧭</div>
+            <div class="wiz-s-label">Travel Style</div>
+            <div class="wiz-s-value" id="wizSumStyle" style="font-size:.82rem;font-weight:400">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RESULT PANEL ── -->
+      <div class="wiz-result-panel" id="wizResultPanel">
+        <div class="wiz-result-header">
+          <div class="wiz-r-icon">✨</div>
+          <h3 id="wizResultTitle">Your Plan is Ready!</h3>
+          <p id="wizResultSubtitle">Here's your personalised India itinerary</p>
+        </div>
+        <div class="wiz-result-cards" id="wizResultCards"></div>
+      </div>
+
+      <!-- FOOTER NAV -->
+      <div class="wiz-footer" id="wizFooter">
+        <button class="wiz-btn-back" id="wizBackBtn" onclick="wizPrevStep()" disabled>← Back</button>
+        <span class="wiz-step-count" id="wizStepCount">Step 1 of 5</span>
+        <button class="wiz-btn-next" id="wizNextBtn" onclick="wizNextStep()">
+          <span id="wizNextBtnText">Continue</span> →
+        </button>
+      </div>
+
+    </div><!-- /wizard-card -->
+  </section>
+
+  <!-- ═══ PLACES ═══ -->
+  <section id="places" class="section places-section">
+    <div class="section-header-wrap">
+      <div class="section-label-tag">Destinations</div>
+      <h2 class="section-title-main">Famous Places<br><em>of India</em></h2>
+      <p class="section-sub-text">Click any city card to discover street food, hidden gems & best hotels.</p>
+    </div>
+
+    <div class="places-grid">
+      <div class="place-card fade-in" onclick="openCityPage('jaipur')">
+        <div class="place-img-wrap">
+          <img src="Jaipur.jpg" alt="Jaipur" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">Rajasthan</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Jaipur</h3>
+          <p>The Pink City – palaces, forts & royal heritage</p>
+        </div>
+      </div>
+      <div class="place-card fade-in" onclick="openCityPage('goa')">
+        <div class="place-img-wrap">
+          <img src="Goa.jpg" alt="Goa" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">Beach</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Goa</h3>
+          <p>Sun, sand & Portuguese charm on India's coast</p>
+        </div>
+      </div>
+      <div class="place-card fade-in" onclick="openCityPage('manali')">
+        <div class="place-img-wrap">
+          <img src="Manali.jpg" alt="Manali" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">Mountains</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Manali</h3>
+          <p>Snow-capped peaks, rivers & adventure awaits</p>
+        </div>
+      </div>
+      <div class="place-card fade-in" onclick="openCityPage('varanasi')">
+        <div class="place-img-wrap">
+          <img src="Varanasi.jpg" alt="Varanasi" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">Spiritual</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Varanasi</h3>
+          <p>The oldest living city – ghats, temples & Ganga</p>
+        </div>
+      </div>
+      <div class="place-card fade-in" onclick="openCityPage('kerala')">
+        <div class="place-img-wrap">
+          <img src="Kerala.jpg" alt="Kerala" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">Nature</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Kerala</h3>
+          <p>God's own country – backwaters, spice & serenity</p>
+        </div>
+      </div>
+      <div class="place-card fade-in" onclick="openCityPage('ladakh')">
+        <div class="place-img-wrap">
+          <img src="Ladakh.jpg" alt="Ladakh" loading="lazy" />
+          <div class="place-img-overlay"></div>
+          <div class="place-badge">High Altitude</div>
+          <div class="place-hover-cta">Tap to Explore →</div>
+        </div>
+        <div class="place-info">
+          <h3>Ladakh</h3>
+          <p>Moonscapes, monasteries & cosmic landscapes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI FEATURES -->
+  <section class="section features-section">
+    <div class="section-header-wrap">
+      <div class="section-label-tag">Why AI?</div>
+      <h2 class="section-title-main">Smart Planning,<br><em>Better Journeys</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">₹</div>
+        <h3>AI Budget Planning</h3>
+        <p>Day-wise breakdown — stays, food, transport and activities tailored to your style.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🍜</div>
+        <h3>Street Food Guide</h3>
+        <p>Must-try local street foods, where to find them, and prices in every city.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">◎</div>
+        <h3>Hidden Gems</h3>
+        <p>Skip tourist traps. Our AI uncovers lesser-known spots that locals love.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📅</div>
+        <h3>Day-Wise Itinerary</h3>
+        <p>A structured plan for each day — so you never waste time figuring out what's next.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🗺</div>
+        <h3>Interactive Maps</h3>
+        <p>All your trip spots pinned on a live interactive map with place details.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🏨</div>
+        <h3>Hotel Suggestions</h3>
+        <p>Best stays for every budget — heritage havelis to luxury resorts and hostels.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section about-section">
+    <div class="about-inner">
+      <div class="about-text fade-in">
+        <div class="section-label-tag">About Us</div>
+        <h2 class="section-title-main">We Believe Every<br><em>Journey Matters</em></h2>
+        <p>Plan Your Trip India was built with one belief: travel should be intelligent, accessible, and deeply
+          personal. India is vast — 28 states, hundreds of languages, thousands of cuisines. Planning it shouldn't be
+          overwhelming.</p>
+        <p>Our AI planner takes your destination, budget, duration and style, and transforms them into a complete
+          itinerary — with famous sights, hidden gems, street food, interactive maps and hotel picks. No booking
+          required. No fees.</p>
+        <div class="about-values">
+          <div class="about-value"><span class="value-dot"></span>Free forever — no hidden charges</div>
+          <div class="about-value"><span class="value-dot"></span>Built for Indian travellers, by India lovers</div>
+          <div class="about-value"><span class="value-dot"></span>Offline-ready Progressive Web App</div>
+        </div>
+      </div>
+      <div class="about-visual fade-in">
+        <div class="about-img-grid">
+          <img src="Jaipur.jpg" alt="Jaipur" />
+          <img src="Goa.jpg" alt="Goa" />
+          <img src="Ladakh.jpg" alt="Ladakh" />
+          <img src="Kerala.jpg" alt="Kerala" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section contact-section">
+    <div class="section-header-wrap">
+      <div class="section-label-tag">Contact</div>
+      <h2 class="section-title-main">Get In Touch</h2>
+      <p class="section-sub-text">Have questions or suggestions? We'd love to hear from you.</p>
+    </div>
+    <div class="contact-inner">
+      <div class="contact-form-wrap fade-in">
+        <form id="contactForm" onsubmit="submitContact(event)">
+          <div class="form-group"><label>Your Name</label><input type="text" class="form-input"
+              placeholder="Rahul Sharma" required /></div>
+          <div class="form-group"><label>Email Address</label><input type="email" class="form-input"
+              placeholder="rahul@email.com" required /></div>
+          <div class="form-group"><label>Message</label><textarea class="form-input form-textarea" rows="5"
+              placeholder="Tell us about your dream India trip..." required></textarea></div>
+          <button type="submit" class="btn-primary full">Send Message ✦</button>
+          <p class="form-success" id="formSuccess" style="display:none">✓ Message sent! We'll reply within 24 hours.</p>
+        </form>
+      </div>
+      <div class="contact-info fade-in">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div><strong>Address</strong>
+            <p>42, Connaught Place, New Delhi – 110001</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉</div>
+          <div><strong>Email</strong>
+            <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                data-cfemail="e8808d848487a89884898691879d9a9c9a819881868c8189c68b8785">[email&#160;protected]</a></p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div><strong>Phone</strong>
+            <p>+91 98765 43210</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo"><img src="india-trip-logo.svg" alt="Logo" class="footer-logo-img" /> Plan Your Trip
+          India</div>
+        <p>Your AI-powered companion for exploring Incredible India.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg></a>
+          <a href="#" class="social-btn" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            </svg></a>
+          <a href="#" class="social-btn" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+            </svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#india-map">India Map</a></li>
+          <li><a href="#places">Places</a></li>
+          <li><a href="#planner">AI Planner</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Top Cities</h4>
+        <ul>
+          <li><a href="#" onclick="openCityPage('jaipur');return false">Jaipur</a></li>
+          <li><a href="#" onclick="openCityPage('goa');return false">Goa</a></li>
+          <li><a href="#" onclick="openCityPage('manali');return false">Manali</a></li>
+          <li><a href="#" onclick="openCityPage('varanasi');return false">Varanasi</a></li>
+          <li><a href="#" onclick="openCityPage('ladakh');return false">Ladakh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>42, Connaught Place<br>New Delhi – 110001</p>
+        <p style="margin-top:.5rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+            data-cfemail="3c54595050537c4c505d524553494e484e554c555258555d125f5351">[email&#160;protected]</a></p>
+        <p style="margin-top:.3rem">+91 98765 43210</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Plan Your Trip India. Crafted with ❤ for Incredible India.</p>
+    </div>
+  </footer>
+
+  <!-- ═══ CITY DETAIL PAGE ═══ -->
+  <div id="cityPage" style="display:none">
+    <div class="city-page-inner">
+
+      <!-- ── CITY HERO with background image ── -->
+      <div class="city-hero" id="cityHero">
+        <img id="cityHeroImg" src="" alt="" class="city-hero-img" />
+        <div class="city-hero-blur-layer"></div>
+        <div class="city-hero-content">
+          <button class="city-back-btn" onclick="closeCityPage()">← Back to Places</button>
+          <span class="city-badge-hero" id="cityBadge"></span>
+          <h1 class="city-hero-title" id="cityTitle"></h1>
+          <p class="city-hero-tagline" id="cityTagline"></p>
+          <button class="btn-primary city-plan-btn" onclick="quickPlanCity()">✦ Generate AI Plan for this City</button>
+        </div>
+      </div>
+
+      <div class="city-tabs-wrap">
+        <div class="city-tabs">
+          <button class="city-tab active" data-tab="famous">🏛 Famous Places</button>
+          <button class="city-tab" data-tab="food">🍜 Street Food</button>
+          <button class="city-tab" data-tab="hidden">◎ Hidden Gems</button>
+          <button class="city-tab" data-tab="hotels">🏨 Best Hotels</button>
+        </div>
+        <div class="city-tab-content active" id="tab-famous">
+          <div class="city-cards-grid" id="famousCards"></div>
+        </div>
+        <div class="city-tab-content" id="tab-food">
+          <div class="city-cards-grid" id="foodCards"></div>
+        </div>
+        <div class="city-tab-content" id="tab-hidden">
+          <div class="city-cards-grid" id="hiddenCards"></div>
+        </div>
+        <div class="city-tab-content" id="tab-hotels">
+          <div class="city-cards-grid" id="hotelCards"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AI CHATBOT ═══ -->
+  <div class="chatbot-container">
+    <div class="chatbot-window" id="chatWindow">
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-info">
+          <h4>India Travel AI</h4>
+          <span class="chat-status">● Online — Ask me anything</span>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot">
+          <div class="msg-avatar">🤖</div>
+          <div class="msg-content">
+            Namaste! 🙏 I'm your India Travel AI. Ask me about destinations, itineraries, budget tips, food, culture —
+            anything about travelling in India!
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-suggestions">
+          <button onclick="sendQuickMsg('Best places to visit in India in December?')">❄️ December travel</button>
+          <button onclick="sendQuickMsg('Budget trip to Goa for 5 days?')">🏖️ Budget Goa</button>
+          <button onclick="sendQuickMsg('Hidden gems in Rajasthan?')">💎 Hidden gems</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Ask about India travel..."
+            onkeydown="if(event.key==='Enter')sendMessage()" />
+          <button class="chat-send" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+    <button class="chatbot-btn" onclick="toggleChat()">
+      <span class="chatbot-icon">🤖</span>
+      <span>Ask AI</span>
+      <span class="chat-notif" id="chatNotif">1</span>
+    </button>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- AUTH MODALS -->
+  <div class="auth-modal-backdrop" id="loginModal">
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-label="Login">
+      <div class="auth-modal-glow"></div>
+      <button class="auth-close" onclick="closeModal('loginModal')" aria-label="Close">✕</button>
+      <div class="auth-modal-inner">
+        <div class="auth-logo-wrap">
+          <div class="auth-logo-icon">
+            <img src="india-trip-logo.svg" alt="Logo" />
+          </div>
+          <h2>Welcome Back</h2>
+          <p>Sign in to your Plan Your Trip India account</p>
+        </div>
+        <div class="auth-error" id="loginError"></div>
+        <div class="auth-field">
+          <label for="loginEmail">Email Address</label>
+          <div class="auth-input-wrap">
+            <input type="email" id="loginEmail" class="auth-input" placeholder="you@email.com" autocomplete="email" />
+            <span class="auth-input-icon">✉</span>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="loginPassword">Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="loginPassword" class="auth-input" placeholder="Your password"
+              autocomplete="current-password" />
+            <span class="auth-input-icon">🔒</span>
+            <button class="auth-pw-toggle" type="button" onclick="togglePw('loginPassword',this)">👁</button>
+          </div>
+        </div>
+        <div class="auth-forgot"><a href="#" onclick="return false">Forgot password?</a></div>
+        <button class="auth-submit" id="loginSubmitBtn" onclick="handleLogin()">
+          <span class="auth-submit-text">Sign In ✦</span>
+          <span class="auth-submit-loader"><span></span><span></span><span></span></span>
+        </button>
+        <div class="auth-divider">or continue with</div>
+        <div class="auth-social">
+          <button class="auth-social-btn" onclick="handleSocialLogin('Google')">
+            <svg viewBox="0 0 24 24">
+              <path fill="#EA4335"
+                d="M5.27 9.76A7.08 7.08 0 0 1 19.07 12h-7.14v2.86h4.08c-.19.97-.76 1.79-1.6 2.33v1.94h2.59c1.52-1.4 2.4-3.46 2.4-5.9 0-.56-.05-1.1-.14-1.62H12v3.04h6.03a6.19 6.19 0 0 1-.61 1.28l-.06.09H15a7.07 7.07 0 0 1-9.73-4.02z" />
+              <path fill="#34A853"
+                d="M5.27 14.24A7.08 7.08 0 0 0 12 19.07c1.86 0 3.42-.62 4.56-1.67l-2.59-2.01a4.21 4.21 0 0 1-6.27-2.2l-2.43 1.05z" />
+              <path fill="#FBBC05"
+                d="M2.69 7.78A7.06 7.06 0 0 0 4.93 14.24l2.43-1.05A4.21 4.21 0 0 1 7.8 9.76L5.27 9.76 2.69 7.78z" />
+              <path fill="#EA4335"
+                d="M12 4.93c1.05 0 1.99.36 2.73.95l2.04-2.04A7.06 7.06 0 0 0 12 1.93a7.08 7.08 0 0 0-6.73 4.85l2.58 2h.11A4.21 4.21 0 0 1 12 4.93z" />
+            </svg>
+            Google
+          </button>
+          <button class="auth-social-btn" onclick="handleSocialLogin('Facebook')">
+            <svg viewBox="0 0 24 24">
+              <path fill="#1877F2"
+                d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z" />
+            </svg>
+            Facebook
+          </button>
+        </div>
+        <div class="auth-switch">
+          <p>Don't have an account? <a href="#" onclick="switchModal('loginModal','signupModal');return false">Create
+              one →</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUTH MODAL — SIGN UP ═══ -->
+  <div class="auth-modal-backdrop" id="signupModal">
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-label="Sign Up">
+      <div class="auth-modal-glow"></div>
+      <button class="auth-close" onclick="closeModal('signupModal')" aria-label="Close">✕</button>
+      <div class="auth-modal-inner">
+        <div class="auth-logo-wrap">
+          <div class="auth-logo-icon">
+            <img src="india-trip-logo.svg" alt="Logo" />
+          </div>
+          <h2>Create Account</h2>
+          <p>Start planning your incredible India journey</p>
+        </div>
+        <div class="auth-error" id="signupError"></div>
+        <div class="auth-success" id="signupSuccess"></div>
+        <div class="auth-row">
+          <div class="auth-field">
+            <label for="signupFirst">First Name</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="signupFirst" class="auth-input" placeholder="Rahul" autocomplete="given-name" />
+              <span class="auth-input-icon">👤</span>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="signupLast">Last Name</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="signupLast" class="auth-input" placeholder="Sharma" autocomplete="family-name" />
+              <span class="auth-input-icon">👤</span>
+            </div>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="signupEmail">Email Address</label>
+          <div class="auth-input-wrap">
+            <input type="email" id="signupEmail" class="auth-input" placeholder="rahul@email.com"
+              autocomplete="email" />
+            <span class="auth-input-icon">✉</span>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="signupPassword">Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="signupPassword" class="auth-input" placeholder="Min. 8 characters"
+              autocomplete="new-password" oninput="checkPwStrength(this.value)" />
+            <span class="auth-input-icon">🔒</span>
+            <button class="auth-pw-toggle" type="button" onclick="togglePw('signupPassword',this)">👁</button>
+          </div>
+          <div class="pw-strength-bar">
+            <div class="pw-strength-fill" id="pwStrengthFill"></div>
+          </div>
+          <div class="pw-strength-label" id="pwStrengthLabel"></div>
+        </div>
+        <button class="auth-submit" id="signupSubmitBtn" onclick="handleSignup()">
+          <span class="auth-submit-text">Create Account ✦</span>
+          <span class="auth-submit-loader"><span></span><span></span><span></span></span>
+        </button>
+        <p class="auth-terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy
+            Policy</a></p>
+        <div class="auth-switch">
+          <p>Already have an account? <a href="#" onclick="switchModal('signupModal','loginModal');return false">Sign in
+              →</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- ═══ CITY HERO IMAGE MAP ═══ -->
+  <script>
+    /**
+     * City image map — keys must match the id passed to openCityPage()
+     * Change these src paths to match your actual image filenames.
+     */
+    const CITY_HERO_IMAGES = {
+      jaipur: { src: 'hawa.jpg', alt: 'Jaipur – The Pink City' },
+      goa: { src: 'beaches.jpg', alt: 'Goa – Sun & Sand' },
+      manali: { src: 'snow.jpg', alt: 'Manali – Snow-Capped Peaks' },
+      varanasi: { src: 'ganges.jpg', alt: 'Varanasi – City of Light' },
+      kerala: { src: 'nature.jpg', alt: 'Kerala – God\'s Own Country' },
+      ladakh: { src: 'mountains.jpg', alt: 'Ladakh – Land of High Passes' },
+    };
+
+    /**
+     * Call this from your existing openCityPage(cityId) function,
+     * BEFORE or AFTER your existing logic — just add these 3 lines:
+     *
+     *   const img = CITY_HERO_IMAGES[cityId] || { src: '', alt: cityId };
+     *   document.getElementById('cityHeroImg').src = img.src;
+     *   document.getElementById('cityHeroImg').alt = img.alt;
+     *
+     * If you want a fallback gradient when no image exists, add:
+     *   document.getElementById('cityHeroImg').style.display = img.src ? 'block' : 'none';
+     */
+
+    // Patch openCityPage if it already exists on the page (loaded from script.js).
+    // This runs AFTER script.js so it safely wraps the original function.
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof openCityPage === 'function') {
+        const _origOpen = openCityPage;
+        window.openCityPage = function (cityId) {
+          _origOpen(cityId);
+          const img = CITY_HERO_IMAGES[cityId] || { src: '', alt: cityId };
+          const el = document.getElementById('cityHeroImg');
+          if (el) {
+            el.src = img.src;
+            el.alt = img.alt;
+            el.style.display = img.src ? 'block' : 'none';
+          }
+        };
+      }
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
