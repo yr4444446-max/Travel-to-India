@@ -60,9 +60,6 @@
       --shadow-sm: 0 6px 24px rgba(171,209,198,0.15);
     }
 
-    /* ══════════════════════════════════════
-       BASE
-    ══════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
@@ -156,7 +153,6 @@
     ══════════════════════════════════════ */
     #adminApp { display: none; min-height: 100vh; }
 
-    /* SIDEBAR */
     .admin-sidebar {
       position: fixed; top: 0; left: 0;
       width: 260px; height: 100vh;
@@ -242,7 +238,6 @@
     }
     .btn-logout:hover { border-color: var(--red); color: var(--red); background: rgba(248,113,113,0.08); }
 
-    /* MOBILE SIDEBAR TOGGLE */
     .mobile-menu-btn {
       display: none; position: fixed; top: 1rem; left: 1rem; z-index: 300;
       width: 42px; height: 42px; border-radius: 10px;
@@ -255,14 +250,12 @@
       backdrop-filter: blur(4px); z-index: 199;
     }
 
-    /* MAIN CONTENT */
     .admin-main {
       margin-left: 260px;
       min-height: 100vh;
       display: flex; flex-direction: column;
     }
 
-    /* TOP BAR */
     .admin-topbar {
       background: var(--bg-2);
       border-bottom: 1px solid var(--border);
@@ -291,11 +284,9 @@
     .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulseDot 2s infinite; }
     @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
 
-    /* PAGES */
     .admin-page { padding: 1.75rem; display: none; flex: 1; }
     .admin-page.active { display: block; }
 
-    /* STATS CARDS */
     .stats-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem; margin-bottom: 1.75rem;
@@ -322,7 +313,6 @@
     .stat-label { font-size: 0.75rem; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
     .stat-change { font-size: 0.72rem; color: var(--green); margin-top: 0.35rem; }
 
-    /* SECTION HEADERS */
     .section-head {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;
@@ -333,7 +323,6 @@
     }
     .section-head-title span { color: var(--uv); }
 
-    /* FILTER TABS */
     .filter-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .filter-tab {
       padding: 0.35rem 0.85rem; border-radius: 20px;
@@ -343,7 +332,6 @@
     }
     .filter-tab.active, .filter-tab:hover { background: var(--uv-mist); border-color: var(--uv); color: var(--uv); }
 
-    /* TABLE */
     .table-wrap {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -367,7 +355,6 @@
     .table-wrap tr:hover td { background: rgba(171,209,198,0.04); }
     .table-empty { text-align: center; padding: 3rem; color: var(--text-dim); font-size: 0.9rem; }
 
-    /* REVIEW CARDS */
     .reviews-admin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
     .review-admin-card {
       background: var(--bg-card); border: 1px solid var(--border);
@@ -421,7 +408,6 @@
     .status-pill.approved { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
     .status-pill.rejected { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
 
-    /* CONTACT CARDS */
     .contact-admin-card {
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1.1rem 1.25rem;
@@ -442,7 +428,6 @@
     }
     .btn-mark-read:hover { background: rgba(171,209,198,0.28); }
 
-    /* USERS TABLE */
     .user-avatar-sm {
       width: 30px; height: 30px; border-radius: 50%;
       background: linear-gradient(135deg, var(--uv-deeper), var(--uv));
@@ -458,7 +443,6 @@
       color: var(--uv);
     }
 
-    /* TRIPS */
     .trip-card {
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1rem 1.25rem;
@@ -473,7 +457,6 @@
       background: var(--bg-2); border: 1px solid var(--border); color: var(--text-muted);
     }
 
-    /* LOADING SPINNER */
     .spinner-wrap { display: flex; align-items: center; justify-content: center; padding: 3rem; gap: 0.75rem; color: var(--text-dim); font-size: 0.85rem; }
     .spinner {
       width: 22px; height: 22px; border-radius: 50%;
@@ -483,7 +466,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* TOAST */
     #adminToast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9998;
       background: var(--bg-2); border: 1px solid var(--lc-border);
@@ -496,7 +478,6 @@
     }
     #adminToast.show { transform: translateY(0); opacity: 1; }
 
-    /* EMPTY STATE */
     .empty-state {
       text-align: center; padding: 3rem 1.5rem;
       background: var(--bg-card); border: 1px solid var(--border);
@@ -506,7 +487,6 @@
     .empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--text-muted); margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.82rem; }
 
-    /* DASHBOARD ACTIVITY */
     .activity-feed {
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: var(--radius); overflow: hidden;
@@ -527,7 +507,6 @@
     .activity-text strong { color: var(--text); }
     .activity-time { font-size: 0.7rem; color: var(--text-dim); white-space: nowrap; }
 
-    /* RESPONSIVE */
     @media (max-width: 900px) {
       .admin-sidebar { transform: translateX(-100%); }
       .admin-sidebar.open { transform: translateX(0); }
@@ -543,7 +522,6 @@
       .table-wrap { overflow-x: auto; }
     }
 
-    /* SEARCH INPUT */
     .search-input-wrap { position: relative; }
     .search-input-wrap .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.85rem; pointer-events: none; }
     .search-input {
@@ -555,7 +533,6 @@
     }
     .search-input:focus { border-color: var(--uv); }
 
-    /* QUICK ACTION BUTTON */
     .btn-primary-sm {
       padding: 0.45rem 1rem; border-radius: 8px;
       background: var(--uv); color: #0a1412;
@@ -565,7 +542,6 @@
     }
     .btn-primary-sm:hover { background: var(--uv-light); transform: translateY(-1px); }
 
-    /* GRID 2 col for reviews */
     @media (min-width: 900px) {
       .reviews-admin-grid { grid-template-columns: 1fr 1fr; }
     }
@@ -587,13 +563,14 @@
     <p class="login-sub">Sign in to manage your travel platform</p>
     <div class="login-error" id="loginError"></div>
     <div class="login-field">
-      <label>Email Address</label>
-      <input type="email" class="login-input" id="adminEmail" placeholder="admin@example.com" autocomplete="email" />
+      <label>Username</label>
+      <input type="text" class="login-input" id="adminUser" placeholder="Enter username"
+        onkeydown="if(event.key==='Enter')adminLogin()" autocomplete="username" />
     </div>
     <div class="login-field">
       <label>Password</label>
-      <input type="password" class="login-input" id="adminPassword" placeholder="Your password" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')adminLogin()" />
+      <input type="password" class="login-input" id="adminPassword" placeholder="Enter password"
+        onkeydown="if(event.key==='Enter')adminLogin()" autocomplete="current-password" />
     </div>
     <button class="login-btn" id="loginBtn" onclick="adminLogin()">
       <span>✦</span> Sign In to Dashboard
@@ -604,7 +581,6 @@
 <!-- ═══ ADMIN APP ═══ -->
 <div id="adminApp">
 
-  <!-- Mobile menu button -->
   <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
@@ -655,7 +631,6 @@
   <!-- MAIN CONTENT -->
   <main class="admin-main">
 
-    <!-- TOP BAR -->
     <div class="admin-topbar">
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div class="topbar-right">
@@ -788,9 +763,19 @@
 <script src="firebase-config.js"></script>
 
 <script>
-  /* ══════════════════════════════════════
-     GLOBALS
-  ══════════════════════════════════════ */
+
+  /* ══════════════════════════════════════════════════════════════
+     ✏️  ADMIN CREDENTIALS — CHANGE USERNAME & PASSWORD HERE
+     ══════════════════════════════════════════════════════════════
+     To update in the future, simply edit the two values below:
+       ADMIN_USERNAME  →  the login username
+       ADMIN_PASSWORD  →  the login password
+  ══════════════════════════════════════════════════════════════ */
+  var ADMIN_USERNAME = "AKY";       // ← Change username here
+  var ADMIN_PASSWORD = "12345678";  // ← Change password here
+  /* ══════════════════════════════════════════════════════════════ */
+
+
   var _allReviews = [];
   var _allContacts = [];
   var _allUsers = [];
@@ -847,57 +832,53 @@
     document.getElementById('page-' + name).classList.add('active');
     if (btn) btn.classList.add('active');
     document.getElementById('topbarTitle').textContent = pageTitles[name] || name;
-    // Close sidebar on mobile
     document.getElementById('adminSidebar').classList.remove('open');
     document.getElementById('sidebarBackdrop').classList.remove('open');
   }
 
   /* ══════════════════════════════════════
-     FIREBASE AUTH — LOGIN
+     LOCAL LOGIN (Username + Password)
   ══════════════════════════════════════ */
-  function waitForFirebase(cb) {
-    if (window.auth && window.db) { cb(); return; }
-    setTimeout(function () { waitForFirebase(cb); }, 200);
-  }
-
   function adminLogin() {
-    var email = document.getElementById('adminEmail').value.trim();
+    var user  = document.getElementById('adminUser').value.trim();
     var pass  = document.getElementById('adminPassword').value;
     var errEl = document.getElementById('loginError');
     var btn   = document.getElementById('loginBtn');
     errEl.style.display = 'none';
-    if (!email || !pass) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+
+    if (!user || !pass) {
+      errEl.textContent = 'Please enter username and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    if (user !== ADMIN_USERNAME || pass !== ADMIN_PASSWORD) {
+      errEl.textContent = 'Incorrect username or password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Credentials match — show dashboard
     btn.classList.add('loading'); btn.textContent = 'Signing in…';
-    waitForFirebase(function () {
-      window.auth.signInWithEmailAndPassword(email, pass)
-        .then(function (cred) {
-          startAdmin(cred.user);
-        })
-        .catch(function (err) {
-          btn.classList.remove('loading'); btn.innerHTML = '<span>✦</span> Sign In to Dashboard';
-          errEl.textContent = err.message || 'Login failed. Check credentials.';
-          errEl.style.display = 'block';
-        });
-    });
+    setTimeout(function () {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>✦</span> Sign In to Dashboard';
+      startAdmin(user);
+    }, 600);
   }
 
   function adminLogout() {
-    window.auth.signOut().then(function () {
-      document.getElementById('adminApp').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('adminEmail').value = '';
-      document.getElementById('adminPassword').value = '';
-    });
+    document.getElementById('adminApp').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminUser').value = '';
+    document.getElementById('adminPassword').value = '';
   }
 
-  function startAdmin(user) {
+  function startAdmin(username) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminApp').style.display = 'block';
-    // Set sidebar user info
-    var name = user.displayName || user.email.split('@')[0];
-    document.getElementById('sidebarName').textContent = name;
-    document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
-    // Load all data
+    document.getElementById('sidebarName').textContent = username;
+    document.getElementById('sidebarAvatar').textContent = username.charAt(0).toUpperCase();
     loadDashboard();
     loadReviewsAdmin();
     loadContactsAdmin();
@@ -905,46 +886,38 @@
     loadTripsAdmin();
   }
 
-  /* On page load: check auth state */
-  window.addEventListener('load', function () {
-    waitForFirebase(function () {
-      window.auth.onAuthStateChanged(function (user) {
-        if (user) { startAdmin(user); }
-      });
-    });
-  });
-
   /* ══════════════════════════════════════
      DASHBOARD
   ══════════════════════════════════════ */
+  function waitForFirebase(cb) {
+    if (window.db) { cb(); return; }
+    setTimeout(function () { waitForFirebase(cb); }, 200);
+  }
+
   function loadDashboard() {
-    var db = window.db;
-    if (!db) return;
-    // Users count
-    db.collection('users').get().then(function (s) {
-      document.getElementById('stat-users').textContent = s.size;
+    waitForFirebase(function () {
+      var db = window.db;
+      db.collection('users').get().then(function (s) {
+        document.getElementById('stat-users').textContent = s.size;
+      });
+      db.collection('reviews').get().then(function (s) {
+        var pending = 0, approved = 0;
+        s.forEach(function (d) { if (d.data().approved) approved++; else pending++; });
+        document.getElementById('stat-pending').textContent = pending;
+        document.getElementById('stat-approved').textContent = approved;
+        document.getElementById('pendingBadge').textContent = pending;
+      });
+      db.collection('contacts').get().then(function (s) {
+        var unread = 0;
+        s.forEach(function (d) { if (!d.data().read) unread++; });
+        document.getElementById('stat-contacts').textContent = s.size;
+        document.getElementById('unreadBadge').textContent = unread;
+      });
+      db.collection('trips').get().then(function (s) {
+        document.getElementById('stat-trips').textContent = s.size;
+      });
+      buildActivityFeed();
     });
-    // Reviews
-    db.collection('reviews').get().then(function (s) {
-      var pending = 0, approved = 0;
-      s.forEach(function (d) { if (d.data().approved) approved++; else pending++; });
-      document.getElementById('stat-pending').textContent = pending;
-      document.getElementById('stat-approved').textContent = approved;
-      document.getElementById('pendingBadge').textContent = pending;
-    });
-    // Contacts
-    db.collection('contacts').get().then(function (s) {
-      var unread = 0;
-      s.forEach(function (d) { if (!d.data().read) unread++; });
-      document.getElementById('stat-contacts').textContent = s.size;
-      document.getElementById('unreadBadge').textContent = unread;
-    });
-    // Trips
-    db.collection('trips').get().then(function (s) {
-      document.getElementById('stat-trips').textContent = s.size;
-    });
-    // Activity feed
-    buildActivityFeed();
   }
 
   function buildActivityFeed() {
@@ -997,12 +970,13 @@
      REVIEWS
   ══════════════════════════════════════ */
   function loadReviewsAdmin() {
-    var db = window.db;
-    db.collection('reviews').orderBy('createdAt','desc').get().then(function (s) {
-      _allReviews = [];
-      s.forEach(function (d) { _allReviews.push({ id: d.id, ...d.data() }); });
-      renderReviewsAdmin();
-    }).catch(function (e) { console.error(e); });
+    waitForFirebase(function () {
+      window.db.collection('reviews').orderBy('createdAt','desc').get().then(function (s) {
+        _allReviews = [];
+        s.forEach(function (d) { _allReviews.push({ id: d.id, ...d.data() }); });
+        renderReviewsAdmin();
+      }).catch(function (e) { console.error(e); });
+    });
   }
 
   function filterReviewsAdmin(filter, btn) {
@@ -1088,12 +1062,13 @@
      CONTACTS
   ══════════════════════════════════════ */
   function loadContactsAdmin() {
-    var db = window.db;
-    db.collection('contacts').orderBy('createdAt','desc').get().then(function (s) {
-      _allContacts = [];
-      s.forEach(function (d) { _allContacts.push({ id: d.id, ...d.data() }); });
-      renderContacts();
-    }).catch(function (e) { console.error(e); });
+    waitForFirebase(function () {
+      window.db.collection('contacts').orderBy('createdAt','desc').get().then(function (s) {
+        _allContacts = [];
+        s.forEach(function (d) { _allContacts.push({ id: d.id, ...d.data() }); });
+        renderContacts();
+      }).catch(function (e) { console.error(e); });
+    });
   }
 
   function filterContacts(filter, btn) {
@@ -1153,12 +1128,13 @@
      USERS
   ══════════════════════════════════════ */
   function loadUsersAdmin() {
-    var db = window.db;
-    db.collection('users').orderBy('joined','desc').get().then(function (s) {
-      _allUsers = [];
-      s.forEach(function (d) { _allUsers.push({ id: d.id, ...d.data() }); });
-      renderUsers(_allUsers);
-    }).catch(function (e) { console.error(e); });
+    waitForFirebase(function () {
+      window.db.collection('users').orderBy('joined','desc').get().then(function (s) {
+        _allUsers = [];
+        s.forEach(function (d) { _allUsers.push({ id: d.id, ...d.data() }); });
+        renderUsers(_allUsers);
+      }).catch(function (e) { console.error(e); });
+    });
   }
 
   function searchUsers(q) {
@@ -1197,12 +1173,13 @@
      TRIPS
   ══════════════════════════════════════ */
   function loadTripsAdmin() {
-    var db = window.db;
-    db.collection('trips').orderBy('savedAt','desc').limit(50).get().then(function (s) {
-      _allTrips = [];
-      s.forEach(function (d) { _allTrips.push({ id: d.id, ...d.data() }); });
-      renderTrips();
-    }).catch(function (e) { console.error(e); });
+    waitForFirebase(function () {
+      window.db.collection('trips').orderBy('savedAt','desc').limit(50).get().then(function (s) {
+        _allTrips = [];
+        s.forEach(function (d) { _allTrips.push({ id: d.id, ...d.data() }); });
+        renderTrips();
+      }).catch(function (e) { console.error(e); });
+    });
   }
 
   function renderTrips() {
