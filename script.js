@@ -3696,6 +3696,32 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function refreshNavAuth() {
+    // ── Mobile navbar compact badge (visible in the top bar, not just hamburger menu) ──
+    let mobNavBadge = document.getElementById('mobNavUserBadge');
+    if (!mobNavBadge) {
+        mobNavBadge = document.createElement('div');
+        mobNavBadge.id = 'mobNavUserBadge';
+        mobNavBadge.style.cssText = 'display:none;align-items:center;gap:0.4rem;margin-right:0.5rem;flex-shrink:0;cursor:pointer;';
+        const hamburger = document.getElementById('hamburger');
+        if (hamburger && hamburger.parentNode) {
+            hamburger.parentNode.insertBefore(mobNavBadge, hamburger);
+        }
+    }
+
+    if (currentUser) {
+        const initials = ((currentUser.first || '?')[0] + (currentUser.last || '?')[0]).toUpperCase();
+        const photoURL  = currentUser.photoURL || null;
+        mobNavBadge.innerHTML = photoURL
+            ? `<img src="${photoURL}" alt="${initials}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--uv);flex-shrink:0;" />`
+            : `<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4d8a7c,#ABD1C6);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#0a1412;flex-shrink:0;">${initials}</div>
+               <span style="font-size:0.75rem;font-weight:600;color:var(--text);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${currentUser.first}</span>`;
+        mobNavBadge.style.display = 'flex';
+        mobNavBadge.onclick = () => { if (window.openMobileNav) window.openMobileNav(); };
+    } else {
+        mobNavBadge.style.display = 'none';
+        mobNavBadge.innerHTML = '';
+    }
+
     const navActions = document.getElementById('navActions');
     if (navActions) {
         if (currentUser) {
