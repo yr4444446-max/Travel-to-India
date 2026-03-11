@@ -59,6 +59,14 @@ const firebaseConfig = {
 
   // Expose globally so script.js overrides below can use them
   window._fb = { auth, db, analytics };
+  window.auth = auth;
+  window.db   = db;
+
+  // ── PERSIST LOGIN across page reloads ──────────────────────────
+  // LOCAL = stays logged in even after browser closes
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
+    console.warn('[Firebase] Could not set persistence:', err);
+  });
 
   // ══════════════════════════════════════════════════════════════
   //  AUTH — Replace localStorage mock with real Firebase Auth
@@ -515,7 +523,8 @@ const firebaseConfig = {
         name, email, message,
         uid:       window.currentUser?.uid || null,
         read:      false,
-        sentAt:    firebase.firestore.FieldValue.serverTimestamp()
+        sentAt:    firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       success.style.display = 'block';
       form.reset();
@@ -584,35 +593,46 @@ const firebaseConfig = {
    service cloud.firestore {
      match /databases/{database}/documents {
 
-       // Users: only owner can read/write their own profile
-       match /users/{uid} {
-         allow read, write: if request.auth != null && request.auth.uid == uid;
+       // ─── ADMIN UID ─────────────────────────────────────────────────
+       // Replace with YOUR Firebase UID (find it in Firebase Console → Auth → Users)
+       // or set a custom claim. For now we use a hardcoded UID approach.
+       function isAdmin() {
+         return request.auth != null && (
+           request.auth.token.admin == true
+         );
        }
 
-       // Trips: only owner can read/write their own trips
+       // Users: owner can read/write own profile; admin can read all
+       match /users/{uid} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+         allow read: if isAdmin();
+       }
+
+       // Trips: only owner can read/write their own trips; admin can read all
        match /trips/{tripId} {
          allow read, write: if request.auth != null
            && request.auth.uid == resource.data.uid;
          allow create: if request.auth != null
            && request.resource.data.uid == request.auth.uid;
+         allow read, delete: if isAdmin();
        }
 
-       // Reviews: anyone can submit; only approved ones are public
+       // Reviews: anyone can submit; only approved ones are public; admin has full access
        match /reviews/{reviewId} {
-         allow read:   if resource.data.approved == true;
+         allow read:   if resource.data.approved == true || isAdmin();
          allow create: if request.resource.data.keys().hasAll(['name','destination','text','rating'])
            && request.resource.data.rating is int
            && request.resource.data.rating >= 1
            && request.resource.data.rating <= 5
            && request.resource.data.text.size() <= 1000;
-         allow update, delete: if false; // admin only via console
+         allow update, delete: if isAdmin();
        }
 
-       // Contacts: write-only (no one can read via client)
+       // Contacts: write-only for clients; admin can read/delete
        match /contacts/{docId} {
          allow create: if request.resource.data.keys().hasAll(['name','email','message'])
            && request.resource.data.message.size() <= 2000;
-         allow read, update, delete: if false;
+         allow read, update, delete: if isAdmin();
        }
      }
    }
