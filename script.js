@@ -3614,7 +3614,7 @@ function removeTyping(id) {
     if (el) el.remove();
 }
 
-// ═══════════════════════════════════════════════════════════════
+}// ═══════════════════════════════════════════════════════════════
 //  GROQ AI — Direct browser API (works on GitHub Pages!)
 //  ✅ No backend server needed — calls Groq directly
 //  ⬇️  PASTE YOUR FREE GROQ API KEY BELOW
